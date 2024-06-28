@@ -1,0 +1,210 @@
+<!-- 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event-B Generator</title>
+    <style>
+        .border-overlay-right::after {
+            content: '➡️';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .border-overlay-bottom::after {
+            content: '⬇️';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .module-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .module-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .small-box {
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            position: absolute;
+            cursor: pointer;
+        }
+        .bottom-right {
+            bottom: -5px;
+            right: -5px;
+        }
+        .top-left {
+            top: -5px;
+            left: -5px;
+        }
+        .oval-shape-1 {
+        width: 80px;
+        height: 40px;
+        background: #ffd700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        }
+
+        
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.7/leader-line.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+
+    
+</head>
+<body class="bg-white font-sans text-black">
+    <nav class="bg-sky-400 flex mx-auto items-center h-12 px-6 text-white shadow-xl">
+        <h2 class="text-md font-medium mx-auto">Event-B Generator</h2>
+        <button id="downloadBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-auto">Download Diagram</button>
+    </nav>
+    
+    <div id="container" class="container mx-10 mt-10 flex flex-col items-start">
+        <div class="static-container mb-14 flex items-center space-x-4">
+            <div id="static_0" class="static_0 bg-blue-100 border-2 border-sky-600 hover:border-dashed p-4 outline-none text-center w-36 h-36 cursor-pointer shadow-md uppercase relative" contenteditable="true">
+                static_0
+                <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+                <div class="border-overlay-bottom absolute bottom-0 left-0 w-full h-2"></div>
+                <div class="small-box bottom-right"></div>
+            </div>
+        </div>
+        <div class="module-container flex flex-col items-start mt-5 space-y-4">
+            <div class="module-row space-x-4">
+                <div id="module_0" class="module_0 bg-pink-100 border-2 border-pink-600 hover:border-dashed p-4 outline-none rounded-2xl text-center w-36 h-52 cursor-pointer shadow-md uppercase relative" contenteditable="true">
+                    module_0
+                    <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+                    <div class="small-box top-left"></div>
+                    <div class="small-box top-left"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="LeadLine.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event-B Generator</title>
+    <style>
+        .border-overlay-right::after {
+            content: '➡️';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .border-overlay-bottom::after {
+            content: '⬇️';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .module-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .module-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .small-box {
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            position: absolute;
+            cursor: pointer;
+        }
+        .bottom-right {
+            bottom: -5px;
+            right: -5px;
+        }
+        .top-left {
+            top: -5px;
+            left: -5px;
+        }
+        .oval-shape {
+            width: 80px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.7/leader-line.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body class="bg-white font-sans text-black">
+    <nav class="bg-sky-400 flex mx-auto items-center h-12 px-6 text-white shadow-xl">
+        <h2 class="text-md font-medium mx-auto">Event-B Generator</h2>
+        <button id="downloadDiagramBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-auto">Download Diagram</button>
+        <button id="downloadEventBBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-2">Download Event-B</button>
+    </nav>
+    
+    <div id="container" class="container mx-10 mt-10 flex flex-col items-start">
+        <div class="static-container mb-14 flex items-center space-x-4">
+            <div id="static_0" class="static_0 bg-blue-100 border-2 border-sky-600 hover:border-dashed p-4 outline-none text-center w-36 h-36 cursor-pointer shadow-md uppercase relative" contenteditable="true">
+                static_0
+                <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+                <div class="border-overlay-bottom absolute bottom-0 left-0 w-full h-2"></div>
+                <div class="small-box bottom-right"></div>
+            </div>
+        </div>
+        <div class="module-container flex flex-col items-start mt-5 space-y-4">
+            <div class="module-row space-x-4">
+                <div id="module_0" class="module_0 bg-pink-100 border-2 border-pink-600 hover:border-dashed p-4 outline-none rounded-2xl text-center w-36 h-52 cursor-pointer shadow-md uppercase relative" contenteditable="true">
+                    module_0
+                    <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+                    <div class="small-box top-left"></div>
+                    <div class="oval-shape func_1">func_1</div>
+                    <div class="oval-shape func_2">func_2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="LeadLine.js"></script>
+    <script src="script.js"></script>
+    <script src="downloadEventB.js"></script>
+</body>
+</html>
