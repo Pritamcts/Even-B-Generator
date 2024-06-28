@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('downloadEventBBtn').addEventListener('click', () => {
         const contextContent = generateEventBContext();
         const machineContent = generateEventBMachine();
-        downloadFile('context_0.ctx', contextContent);
-        downloadFile('machine_0.mch', machineContent);
+        downloadFile('context_0.BUC', contextContent);
+        downloadFile('machine_0.BUM', machineContent);
     });
 });
