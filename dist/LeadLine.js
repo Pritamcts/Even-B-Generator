@@ -591,10 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     );
   });
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('container');
     let staticCounter = 0;
     let moduleCounter = 0;
@@ -602,6 +599,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const createdModuleContainers = new Set();
     const downArrows = {};
     const leaderLines = [];
+
+    // Initial LeaderLine setup
+    const static0 = document.getElementById('static_0');
+    const module0 = document.getElementById('module_0');
+    
+    new LeaderLine(
+      static0,
+      module0,
+      {
+        color: 'blue',
+        size: 4,
+        endPlug: 'arrow3',
+        path: 'straight'
+      }
+    );
 
     function addStaticContainer(baseElement) {
         staticCounter++;
@@ -640,26 +652,28 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         leaderLines.push(line);
 
-        const rightOverlay = newStatic.querySelector('.border-overlay-right');
-        const bottomRightBox = newStatic.querySelector('.small-box.bottom-right');
+        newStatic.querySelector('.border-overlay-right').addEventListener('click', () => addStaticContainer(newStatic));
+        newStatic.querySelector('.small-box.bottom-right').addEventListener('click', () => {
+            const moduleId = `module_${staticCounter}`;
+            const module = document.getElementById(moduleId);
+            if (module) {
+                toggleDownArrow(newStatic, module);
+            } else {
+                alert(`${moduleId} not found.`);
+            }
+        });
+    }
 
-        if (rightOverlay) {
-            rightOverlay.addEventListener('click', () => addStaticContainer(newStatic));
-        }
-        
-        if (bottomRightBox) {
-            bottomRightBox.addEventListener('click', () => {
-                const moduleId = `module_${staticCounter}`;
-                const module = document.getElementById(moduleId);
-                if (module) {
-                    toggleDownArrow(newStatic, module);
-                } else {
-                    alert(`${moduleId} not found.`);
-                }
-            });
-        }
+    function addOvalShape(moduleElement, shapeName) {
+        const newOval = document.createElement('div');
+        newOval.className = 'oval-shape';
+        newOval.innerText = shapeName;
 
-        saveState('add', newContainer, line);
+        moduleElement.appendChild(newOval);
+
+        // Adjust the position of the new oval shape
+        const numShapes = moduleElement.querySelectorAll('.oval-shape').length;
+        newOval.style.marginTop = `${numShapes * 10}px`;
     }
 
     function addModuleContainer(baseElement) {
@@ -682,7 +696,10 @@ document.addEventListener('DOMContentLoaded', () => {
         newModule.contentEditable = 'true';
         newModule.innerHTML = `${newModuleId}
             <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
-            <div class="small-box top-left"></div>`;
+            <div class="small-box top-left"></div>
+            <button class="func_1">Func_1</button>
+            <button class="func_2">Func_2</button>
+            <button class="func_3">Func_3</button>`;
 
         const newContainer = document.createElement('div');
         newContainer.className = 'module-row space-x-4';
@@ -719,28 +736,13 @@ document.addEventListener('DOMContentLoaded', () => {
         downArrows[`${correspondingStaticId}-${newModuleId}`] = downArrow;
         leaderLines.push(downArrow);
 
-        const rightOverlay = newModule.querySelector('.border-overlay-right');
-        const topLeftBox = newModule.querySelector('.small-box.top-left');
-        const func1Button = newModule.querySelector('.func_1');
-        const func2Button = newModule.querySelector('.func_2');
-
-        if (rightOverlay) {
-            rightOverlay.addEventListener('click', () => addModuleContainer(newModule));
-        }
+        newModule.querySelector('.border-overlay-right').addEventListener('click', () => addModuleContainer(newModule));
+        newModule.querySelector('.small-box.top-left').addEventListener('click', () => toggleDownArrow(correspondingStatic, newModule));
         
-        if (topLeftBox) {
-            topLeftBox.addEventListener('click', () => toggleDownArrow(correspondingStatic, newModule));
-        }
-
-        if (func1Button) {
-            func1Button.addEventListener('click', () => addOvalShape(newModule, 'refine_func_2'));
-        }
-
-        if (func2Button) {
-            func2Button.addEventListener('click', () => addOvalShape(newModule, 'refine_func_3'));
-        }
-
-        saveState('add', newContainer, line, downArrow);
+        // Add event listeners for function buttons
+        newModule.querySelector('.func_1').addEventListener('click', () => addOvalShape(newModule, `refine_func_1_${moduleCounter}`));
+        newModule.querySelector('.func_2').addEventListener('click', () => addOvalShape(newModule, `refine_func_2_${moduleCounter}`));
+        newModule.querySelector('.func_3').addEventListener('click', () => addOvalShape(newModule, `refine_func_3_${moduleCounter}`));
     }
 
     function toggleDownArrow(baseElement, targetElement) {
@@ -762,142 +764,110 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             leaderLines.push(downArrows[key]);
         }
-
-        saveState('toggleArrow', targetElement);
     }
 
-    function addOvalShape(moduleElement, shapeName) {
-        const newOval = document.createElement('div');
-        newOval.className = 'oval-shape';
-        newOval.innerText = shapeName;
+    document.querySelector('.border-overlay-right').addEventListener('click', () => {
+        const static0 = document.getElementById('static_0');
+        if (!createdStaticContainers.has(static0.id)) {
+            addStaticContainer(static0);
+        } else {
+            alert('A new static container cannot be added from this element.');
+        }
+    });
 
-        moduleElement.appendChild(newOval);
+    document.querySelector('.small-box.bottom-right').addEventListener('click', () => {
+        const static0 = document.getElementById('static_0');
+        const module1 = document.getElementById('module_1');
+        if (module1) {
+            toggleDownArrow(static0, module1);
+        } else {
+            alert('Module_1 not found.');
+        }
+    });
 
-        const numShapes = moduleElement.querySelectorAll('.oval-shape').length;
-        newOval.style.marginTop = `${numShapes * 10}px`;
+    document.getElementById('module_0').querySelector('.border-overlay-right').addEventListener('click', () => {
+        const module0 = document.getElementById('module_0');
+        if (!createdModuleContainers.has(module0.id)) {
+            addModuleContainer(module0);
+        } else {
+            alert('A new module container cannot be added from this element.');
+        }
+    });
 
-        saveState('add', newOval);
-    }
+    // Add event listeners for the initial module_0
+    const initialModule = document.getElementById('module_0');
+    if (initialModule) {
+        const func1Button = initialModule.querySelector('.func_1');
+        const func2Button = initialModule.querySelector('.func_2');
+        const func3Button = initialModule.querySelector('.func_3');
 
-    const initialStaticRightOverlay = document.querySelector('.border-overlay-right');
-    const initialStaticBottomRightBox = document.querySelector('.small-box.bottom-right');
-    const initialModuleRightOverlay = document.getElementById('module_0')?.querySelector('.border-overlay-right');
-    const initialModuleFunc1Button = document.getElementById('module_0')?.querySelector('.func_1');
-    const initialModuleFunc2Button = document.getElementById('module_0')?.querySelector('.func_2');
-
-    if (initialStaticRightOverlay) {
-        initialStaticRightOverlay.addEventListener('click', () => {
-            const static0 = document.getElementById('static_0');
-            if (static0 && !createdStaticContainers.has(static0.id)) {
-                addStaticContainer(static0);
-            } else {
-                alert('A new static container cannot be added from this element.');
-            }
-        });
-    }
-
-    if (initialStaticBottomRightBox) {
-        initialStaticBottomRightBox.addEventListener('click', () => {
-            const static0 = document.getElementById('static_0');
-            const module1 = document.getElementById('module_1');
-            if (static0 && module1) {
-                toggleDownArrow(static0, module1);
-            } else {
-                alert('Module_1 not found.');
-            }
-        });
-    }
-
-    if (initialModuleRightOverlay) {
-        initialModuleRightOverlay.addEventListener('click', () => {
-            const module0 = document.getElementById('module_0');
-            if (module0 && !createdModuleContainers.has(module0.id)) {
-                addModuleContainer(module0);
-            } else {
-                alert('A new module container cannot be added from this element.');
-            }
-        });
-    }
-
-    if (initialModuleFunc1Button) {
-        initialModuleFunc1Button.addEventListener('click', () => {
-            const module0 = document.getElementById('module_0');
-            if (module0) {
-                addOvalShape(module0, 'refine_func_2');
-            }
-        });
-    }
-
-    if (initialModuleFunc2Button) {
-        initialModuleFunc2Button.addEventListener('click', () => {
-            const module0 = document.getElementById('module_0');
-            if (module0) {
-                addOvalShape(module0, 'refine_func_3');
-            }
-        });
-    }
-
-    let history = [];
-    let currentStateIndex = -1;
-
-    function saveState(action, element, ...lines) {
-        const state = {
-            action: action,
-            element: element.outerHTML,
-            lines: lines.map(line => ({
-                start: line.start.id,
-                end: line.end.id,
-                options: line.options
-            }))
-        };
-        history = history.slice(0, currentStateIndex + 1);
-        history.push(state);
-        currentStateIndex++;
-    }
-
-    function undo() {
-        if (currentStateIndex >= 0) {
-            const state = history[currentStateIndex];
-            currentStateIndex--;
-
-            if (state.action === 'add') {
-                const element = document.querySelector(`[id="${state.element.id}"]`);
-                if (element) {
-                    element.remove();
-                }
-            } else if (state.action === 'toggleArrow') {
-                const baseElement = document.getElementById(state.lines[0].start);
-                const targetElement = document.getElementById(state.lines[0].end);
-                toggleDownArrow(baseElement, targetElement);
-            }
+        if (func1Button) {
+            func1Button.addEventListener('click', () => addOvalShape(initialModule, 'refine_func_1_0'));
+        }
+        if (func2Button) {
+            func2Button.addEventListener('click', () => addOvalShape(initialModule, 'refine_func_2_0'));
+        }
+        if (func3Button) {
+            func3Button.addEventListener('click', () => addOvalShape(initialModule, 'refine_func_3_0'));
         }
     }
 
-    function redo() {
-        if (currentStateIndex < history.length - 1) {
-            currentStateIndex++;
-            const state = history[currentStateIndex];
-
-            if (state.action === 'add') {
-                const tempContainer = document.createElement('div');
-                tempContainer.innerHTML = state.element;
-                const element = tempContainer.firstChild;
-                container.appendChild(element);
-
-                state.lines.forEach(line => {
-                    const start = document.getElementById(line.start);
-                    const end = document.getElementById(line.end);
-                    const newLine = new LeaderLine(start, end, line.options);
-                    leaderLines.push(newLine);
-                });
-            } else if (state.action === 'toggleArrow') {
-                const baseElement = document.getElementById(state.lines[0].start);
-                const targetElement = document.getElementById(state.lines[0].end);
-                toggleDownArrow(baseElement, targetElement);
-            }
-        }
+    // Function to generate Event-B context
+    function generateEventBContext(staticId) {
+        let contextContent = `CONTEXT\n\t${staticId}\t›This is the context of the model.\n\n`;
+        let setsContent = 'SETS\n\n';
+        let constantsContent = 'CONSTANTS\n\n';
+        let axiomsContent = `AXIOMS\n\n\taxm1: partition(${staticId.toLowerCase()}, {${staticId.toLowerCase()}_elements})\n\n`;
+        contextContent += setsContent + constantsContent + axiomsContent + 'END';
+        return contextContent;
     }
 
-    document.getElementById('undo').addEventListener('click', undo);
-    document.getElementById('redo').addEventListener('click', redo);
+    // Function to generate Event-B machine
+    function generateEventBMachine(moduleId, seenContexts) {
+        let machineContent = `MACHINE\n\t${moduleId}\n\n`;
+        let seesContent = `SEES\n\t${seenContexts.join(', ')}\n\n`;
+        let variablesContent = 'VARIABLES\n\n';
+        let invariantsContent = 'INVARIANTS\n\n';
+        let eventsContent = 'EVENTS\n\n\tINITIALISATION: not extended ordinary ›\n\n';
+        machineContent += seesContent + variablesContent + invariantsContent + eventsContent + 'END';
+        return machineContent;
+    }
+
+    // Function to download a file
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    // Add event listener for the download Event-B button
+    document.getElementById('downloadEventBBtn').addEventListener('click', () => {
+        const staticContainers = document.querySelectorAll('[id^="static_"]');
+        const moduleContainers = document.querySelectorAll('[id^="module_"]');
+
+        // Download context files for all static containers
+        staticContainers.forEach((staticContainer) => {
+            const staticId = staticContainer.id;
+            const contextContent = generateEventBContext(staticId);
+            downloadFile(`${staticId}.buc`, contextContent);
+        });
+
+        // Download machine files for all module containers
+        moduleContainers.forEach((moduleContainer) => {
+            const moduleId = moduleContainer.id;
+            const moduleNumber = parseInt(moduleId.split('_')[1]);
+            
+            // Determine which static contexts this module sees
+            const seenContexts = [];
+            for (let i = 0; i <= moduleNumber; i++) {
+                seenContexts.push(`Static_${i}`);
+            }
+
+            const machineContent = generateEventBMachine(moduleId, seenContexts);
+            downloadFile(`${moduleId}.bum`, machineContent);
+        });
+    });
 });
