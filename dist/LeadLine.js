@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-   
+
     // Variables and initial setup
     const static0 = document.getElementById('static_0');
     const module0 = document.getElementById('module_0');
@@ -17,24 +17,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const seesRelationships = new Map();
     const historyStack = [];
     let redoStack = []; // Stack for redo operations
+    const contextMenu = document.getElementById('contextMenu');
+    const addFunctionOption = document.getElementById('addFunctionOption');
+    let targetModule = null;
+
 
     // Initial LeaderLine setup
+
+    const skyblue = '#5DADE2';
+    const pink = '#FF1493';
+
     if (static0 && module0) {
         new LeaderLine(
             static0,
             module0,
             {
-                color: 'blue',
+                color: skyblue,
                 size: 4,
                 endPlug: 'arrow3',
                 path: 'straight'
             }
         );
+
+
+    }
+    function showContextMenu(e) {
+        e.preventDefault();
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        targetModule = e.target.closest('[id^="module_"]');
+    }
+    function hideContextMenu() {
+        contextMenu.style.display = 'none';
     }
 
-    function captureState(action) {
+    document.addEventListener('contextmenu', (e) => {
+        if (e.target.closest('[id^="module_"]')) {
+            showContextMenu(e);
+        } else {
+            hideContextMenu();
+        }
+    });
+
+    document.addEventListener('click', hideContextMenu);
+
+    // Modify the addFunctionButton function
+    function addFunctionButton(moduleElement) {
+        const existingFunctions = moduleElement.querySelectorAll('.oval-shape[class*="func_"]');
+        const nextFuncNumber = existingFunctions.length + 1;
+        const funcName = `func_${nextFuncNumber}`;
+
+        const newButton = document.createElement('div');
+        newButton.className = `oval-shape ${funcName} add-function-button`; // Add class here
+        newButton.innerText = funcName;
+
+        
+
+        moduleElement.appendChild(newButton);
+        captureState('addFunctionButton', funcName);
+        adjustModuleHeight();
+    }
+
+    // Add function option click event
+    addFunctionOption.addEventListener('click', () => {
+        if (targetModule) {
+            addFunctionButton(targetModule);
+            hideContextMenu();
+        }
+    });
+
+    function captureState(action, elementId) {
         const state = {
             action,
+            elementId,
             staticContainers: Array.from(document.querySelectorAll('[id^="static_"]')).map(el => el.outerHTML),
             moduleContainers: Array.from(document.querySelectorAll('[id^="module_"]')).map(el => el.outerHTML),
             leaderLines: leaderLines.map(line => ({
@@ -45,7 +101,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 key,
                 startId: downArrows[key].startElement ? downArrows[key].startElement.id : null,
                 endId: downArrows[key].endElement ? downArrows[key].endElement.id : null
-            }))
+            })),
+            funcButtons: Array.from(document.querySelectorAll('.oval-shape'))
+                .filter(el => el.parentElement.id !== 'module_0')
+                .map(el => ({
+                    id: el.className.split(' ')[1],
+                    parentId: el.parentElement.id,
+                    outerHTML: el.outerHTML
+                }))
         };
         historyStack.push(state);
         redoStack = []; // Clear redo stack on new action
@@ -65,20 +128,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 undoAddModuleContainer(lastState);
                 break;
             case 'addFunctionButton':
+            case 'addRefinementButton':
                 undoAddFunctionButton(lastState);
                 break;
             case 'toggleDownArrow':
                 undoToggleDownArrow(lastState);
                 break;
-            case 'addLeaderLine':
-                undoAddLeaderLine(lastState);
-                break;
             default:
                 break;
         }
+
+        // Redraw all remaining leader lines
+        leaderLines.forEach(line => line.position());
     }
 
-    
+
+
+    function undoAddFunctionButton(state) {
+        if (state.funcButtons.length === 0) return;
+
+        const lastFunction = state.funcButtons[state.funcButtons.length - 1];
+
+        // Ignore function buttons in module_0
+        if (lastFunction.parentId === 'module_0') return;
+
+        const funcElement = document.querySelector(`.${lastFunction.id}`);
+
+        if (funcElement && funcElement.parentElement.id !== 'module_0') {
+            funcElement.remove();
+            funcCounter--;
+        }
+    }
 
     function undoAddStaticContainer(state) {
         if (state.staticContainers.length === 0) return;
@@ -100,47 +180,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 return true;
             });
 
-            // Remove the static container from created set
+            
+            Object.keys(downArrows).forEach(key => {
+                if (key.startsWith(lastStaticId)) {
+                    downArrows[key].remove();
+                    delete downArrows[key];
+                }
+            });
+
+            
             createdStaticContainers.delete(lastStaticId);
+
+            staticCounter--;
         }
     }
 
+
     function undoAddModuleContainer(state) {
-    if (state.moduleContainers.length === 0) return;
+        if (state.moduleContainers.length === 0) return;
 
-    const lastModule = state.moduleContainers[state.moduleContainers.length - 1];
-    const lastModuleId = lastModule.match(/id="(module_\d+)"/)[1];
-    const moduleElement = document.getElementById(lastModuleId);
+        const lastModule = state.moduleContainers[state.moduleContainers.length - 1];
+        const lastModuleId = lastModule.match(/id="(module_\d+)"/)[1];
+        const moduleElement = document.getElementById(lastModuleId);
 
-    if (moduleElement) {
-        // Remove the module container
-        moduleElement.parentElement.remove();
+        if (moduleElement) {
 
-        // Remove associated leader lines
-        leaderLines = leaderLines.filter(line => {
-            if (line.start.id === lastModuleId || line.end.id === lastModuleId) {
-                line.remove();
-                return false;
-            }
-            return true;
-        });
+            moduleElement.parentElement.remove();
 
-        // Remove associated down arrows
-        Object.keys(downArrows).forEach(key => {
-            if (key.includes(lastModuleId)) {
-                downArrows[key].remove();
-                delete downArrows[key];
-            }
-        });
+            
+            leaderLines = leaderLines.filter(line => {
+                if (line.start.id === lastModuleId || line.end.id === lastModuleId) {
+                    line.remove();
+                    return false;
+                }
+                return true;
+            });
 
-        // Remove the module container from created set
-        createdModuleContainers.delete(lastModuleId);
+            Object.keys(downArrows).forEach(key => {
+                if (key.endsWith(lastModuleId)) {
+                    downArrows[key].remove();
+                    delete downArrows[key];
+                }
+            });
+
+            createdModuleContainers.delete(lastModuleId);
+
+            moduleCounter--;
+        }
     }
-}
+
     function undoAddFunctionButton(state) {
-        const lastFunction = state.staticContainers[state.staticContainers.length - 1];
-        const lastFunctionId = lastFunction.match(/class="oval-shape (func_\d+)"/)[1];
-        document.querySelector(`.${lastFunctionId}`).remove();
+        if (state.funcButtons.length === 0) return;
+
+        const lastFunction = state.funcButtons[state.funcButtons.length - 1];
+
+        if (lastFunction.parentId === 'module_0') return;
+
+        const parentModule = document.getElementById(lastFunction.parentId);
+        if (parentModule) {
+            const funcButtons = parentModule.querySelectorAll('.oval-shape[class*="func_"]');
+            if (funcButtons.length > 0) {
+                const lastFuncButton = funcButtons[funcButtons.length - 1];
+                lastFuncButton.remove();
+            }
+        }
     }
 
     function undoToggleDownArrow(state) {
@@ -152,18 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function undoAddLeaderLine(state) {
-        const lastLine = state.leaderLines[state.leaderLines.length - 1];
-        const lineToRemove = leaderLines.find(line =>
-            line.startElement.id === lastLine.startId && line.endElement.id === lastLine.endId
-        );
-        if (lineToRemove) {
-            lineToRemove.remove();
-            const index = leaderLines.indexOf(lineToRemove);
-            leaderLines.splice(index, 1);
-        }
-    }
-
     function addStaticContainer(baseElement) {
         staticCounter++;
         const newStaticId = `static_${staticCounter}`;
@@ -172,7 +263,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const newStatic = document.createElement('div');
         newStatic.id = newStaticId;
-        newStatic.className = 'static_0 bg-blue-100 border-2 border-sky-600 hover:border-dashed p-4 outline-none text-center w-36 h-36 cursor-pointer shadow-md uppercase relative';
+        newStatic.className = 'static_0 bg-blue-100 border-2 border-sky-600 hover:border-dashed p-4 outline-none text-center w-36 h-36 cursor-pointer shadow-md uppercase relative rounded-2xl';
+
         newStatic.contentEditable = 'true';
         newStatic.innerHTML = `${newStaticId}
             <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
@@ -193,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
             baseElement,
             newStatic,
             {
-                color: 'blue',
+                color: skyblue,
                 size: 4,
                 endPlug: 'arrow3',
                 path: 'straight'
@@ -212,7 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        captureState('addStaticContainer'); // Capture the state after adding
+
+        captureState('addStaticContainer', newStaticId); 
     }
 
     function addModuleContainer(baseElement) {
@@ -221,8 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const correspondingStatic = document.getElementById(correspondingStaticId);
 
         if (!correspondingStatic) {
-            alert(`Cannot add a module. ${correspondingStaticId} not present.`);
-            return;
+            addStaticContainer(document.getElementById(`static_${moduleCounter - 1}`) || static0);
         }
 
         createdModuleContainers.add(baseElement.id);
@@ -234,9 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
         newModule.className = 'module_0 bg-pink-100 border-2 border-pink-600 hover:border-dashed p-4 outline-none rounded-2xl text-center w-36 h-52 cursor-pointer shadow-md uppercase relative';
         newModule.contentEditable = 'true';
         newModule.innerHTML = `${newModuleId}
-            <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
-            <div class="small-box top-left"></div>
-            <button class="add-button mt-2 bg-yellow-400 w-20 h-10 rounded-full flex items-center justify-center cursor-pointer text-black text-xs font-bold">Add</button>`;
+        <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+        <div class="small-box top-left"></div>
+        <button class="add-button mt-2 bg-yellow-400 w-20 h-10 rounded-full flex items-center justify-center cursor-pointer text-black text-xs font-bold"></button>`;
 
         const newContainer = document.createElement('div');
         newContainer.className = 'module-row space-x-4';
@@ -252,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             baseElement,
             newModule,
             {
-                color: 'blue',
+                color: pink,
                 size: 4,
                 endPlug: 'arrow3',
                 path: 'straight'
@@ -260,57 +352,38 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         leaderLines.push(line);
 
-        const downArrow = new LeaderLine(
-            correspondingStatic,
-            newModule,
-            {
-                color: 'blue',
-                size: 4,
-                endPlug: 'arrow3',
-                path: 'straight'
-            }
-        );
-        downArrows[`${correspondingStaticId}-${newModuleId}`] = downArrow;
-        leaderLines.push(downArrow);
+        const updatedCorrespondingStatic = document.getElementById(correspondingStaticId);
+        if (updatedCorrespondingStatic) {
+            const downArrow = new LeaderLine(
+                updatedCorrespondingStatic,
+                newModule,
+                {
+                    color: skyblue,
+                    size: 4,
+                    endPlug: 'arrow3',
+                    path: 'straight'
+                }
+            );
+            downArrows[`${correspondingStaticId}-${newModuleId}`] = downArrow;
+            leaderLines.push(downArrow);
+        }
 
         newModule.querySelector('.border-overlay-right').addEventListener('click', () => addModuleContainer(newModule));
-        newModule.querySelector('.small-box.top-left').addEventListener('click', () => toggleDownArrow(correspondingStatic, newModule));
+        newModule.querySelector('.small-box.top-left').addEventListener('click', () => {
+            const updatedStatic = document.getElementById(correspondingStaticId);
+            if (updatedStatic) {
+                toggleDownArrow(updatedStatic, newModule);
+            }
+        });
 
-        // Add event listener for the new Add button
         newModule.querySelector('.add-button').addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent the click from triggering the contenteditable
+            event.stopPropagation();
             addFunctionButton(newModule);
         });
 
-        captureState('addModuleContainer'); // Capture the state after adding
+        captureState('addModuleContainer');
 
         return newModule;
-    }
-
-    function addFunctionButton(moduleElement) {
-        funcCounter++;
-        const funcName = `func_${funcCounter}`;
-        const newButton = document.createElement('div');
-        newButton.className = `oval-shape ${funcName}`;
-        newButton.innerText = funcName;
-
-        newButton.addEventListener('click', function () {
-            if (!this.hasClicked) {
-                const nextModuleId = `module_${funcCounter + 1}`;
-                const nextModule = document.getElementById(nextModuleId);
-                if (nextModule) {
-                    const refinedFuncName = `${funcName}${funcCounter}`;
-                    addRefinementButton(nextModule, refinedFuncName, funcCounter + 1);
-                    this.hasClicked = true;
-                } else {
-                    alert(`${nextModuleId} not found.`);
-                }
-            }
-        });
-
-        moduleElement.appendChild(newButton);
-
-        captureState('addFunctionButton'); // Capture the state after adding
     }
 
     function addRefinementButton(moduleElement, funcName, counter) {
@@ -318,48 +391,66 @@ document.addEventListener('DOMContentLoaded', () => {
         newButton.className = `oval-shape ${funcName}`;
         newButton.innerText = funcName;
 
+        newButton.style.backgroundColor = '#f78cc5';
+        newButton.style.color = 'black';
+
         newButton.addEventListener('click', function () {
-            if (!this.hasClicked) {
-                const nextModuleId = `module_${counter + 1}`;
-                const nextModule = document.getElementById(nextModuleId);
-                if (nextModule) {
-                    const refinedFuncName = `${funcName}${counter}`;
+            const nextModuleId = `module_${counter + 1}`;
+            const nextModule = document.getElementById(nextModuleId);
+            if (nextModule) {
+                const refinedFuncName = `${funcName}${counter}`;
+                const existingRefinement = nextModule.querySelector(`.${refinedFuncName}`);
+                if (!existingRefinement) {
                     addRefinementButton(nextModule, refinedFuncName, counter + 1);
-                    this.hasClicked = true;
-                } else {
-                    alert(`${nextModuleId} not found.`);
                 }
+            } else {
+                alert(`${nextModuleId} not found.`);
             }
         });
 
         moduleElement.appendChild(newButton);
 
-        captureState('addRefinementButton'); // Capture the state after adding
+        captureState('addRefinementButton');
     }
 
     function toggleDownArrow(baseElement, targetElement) {
-        const key = `${baseElement.id}-${targetElement.id}`;
+        const baseId = baseElement.id;
+        const baseNumber = parseInt(baseId.split('_')[1], 10);
+
+        const targetModuleId = `module_${baseNumber + 1}`;
+        const targetModule = document.getElementById(targetModuleId);
+
+        if (!targetModule) {
+            alert(`${targetModuleId} not found.`);
+            return;
+        }
+
+        const key = `${baseId}-${targetModuleId}`;
         if (downArrows[key]) {
             downArrows[key].remove();
             delete downArrows[key];
-            seesRelationships.delete(baseElement.id);
+            seesRelationships.delete(baseId);
         } else {
             downArrows[key] = new LeaderLine(
-                baseElement,
-                targetElement,
+                LeaderLine.pointAnchor(baseElement, { x: '100%', y: '100%' }), 
+                LeaderLine.pointAnchor(targetModule, { x: '0%', y: '0%' }),   
                 {
-                    color: 'blue',
+                    color: skyblue,
                     size: 4,
                     endPlug: 'arrow3',
                     path: 'straight',
+                    startSocket: 'bottom',
+                    endSocket: 'top',
+                    startSocketGravity: 100,
+                    endSocketGravity: 100,
                     endLabel: 'Sees'
                 }
             );
             leaderLines.push(downArrows[key]);
-            seesRelationships.set(baseElement.id, targetElement.id);
+            seesRelationships.set(baseId, targetModuleId);
         }
 
-        captureState('toggleDownArrow'); // Capture the state after toggling
+        captureState('toggleDownArrow', key);
     }
 
 
@@ -404,19 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('A new module container cannot be added from this element.');
                 }
             });
+
         }
 
-        // Add the Add button to module_0
-        const addButton = document.createElement('button');
-        addButton.className = 'add-button mt-2 bg-yellow-400 w-20 h-10 rounded-full flex items-center justify-center cursor-pointer text-black text-xs font-bold';
-        addButton.textContent = 'Add';
-        addButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent the click from triggering the contenteditable
-            addModuleContainer(module0);
-        });
-        module0.appendChild(addButton);
 
-        // Add event listeners for the initial module_0
         const func1Button = module0.querySelector('.func_1');
         const func2Button = module0.querySelector('.func_2');
 
@@ -443,6 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        funcCounter = 2;
     }
 
     // Function to generate Event-B context
@@ -507,3 +591,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
