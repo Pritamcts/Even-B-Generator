@@ -21,6 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const addFunctionOption = document.getElementById('addFunctionOption');
     let targetModule = null;
 
+    const downloadJSBtn = document.createElement('button');
+    downloadJSBtn.id = 'downloadJSBtn';
+    downloadJSBtn.className = 'js-download';
+    downloadJSBtn.textContent = 'Download JS';
+    // Add the button to your navbar or wherever you want it to appear
+    // document.querySelector('your-navbar-selector').appendChild(downloadJSBtn);
+
 
     // Initial LeaderLine setup
 
@@ -62,22 +69,126 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', hideContextMenu);
 
+
+    function createPopup(funcName) {
+        const popup = document.createElement('div');
+        popup.className = 'popup';
+        popup.innerHTML = `
+            <h3>${funcName}</h3>
+            <div>
+                <h4>Precondition:</h4>
+                <textarea class="precondition" rows="3" cols="30"></textarea>
+            </div>
+            <div>
+                <h4>Postcondition:</h4>
+                <textarea class="postcondition" rows="3" cols="30"></textarea>
+            </div>
+        `;
+        popup.style.position = 'absolute';
+        popup.style.backgroundColor = 'white';
+        popup.style.border = '1px solid black';
+        popup.style.padding = '10px';
+        popup.style.zIndex = '1000';
+        popup.style.display = 'none';
+        return popup;
+    }
+
+    function positionPopup(element, popup) {
+        const rect = element.getBoundingClientRect();
+        const popupRect = popup.getBoundingClientRect();
+        
+        let left = rect.right + 10;
+        let top = rect.top;
+    
+        // Check if the popup goes off the right edge of the screen
+        if (left + popupRect.width > window.innerWidth) {
+            left = rect.left - popupRect.width - 10;
+        }
+    
+        // Check if the popup goes off the bottom of the screen
+        if (top + popupRect.height > window.innerHeight) {
+            top = window.innerHeight - popupRect.height - 10;
+        }
+    
+        popup.style.left = `${left}px`;
+        popup.style.top = `${top}px`;
+    }
+
+    function addHoverFunctionality(element) {
+        const funcName = element.className.split(' ')[1];
+        const popup = createPopup(funcName);
+        document.body.appendChild(popup);
+    
+        let timeout;
+    
+        element.addEventListener('mouseenter', (e) => {
+            clearTimeout(timeout);
+            popup.style.display = 'block';
+            positionPopup(element, popup);  // Use the new function here
+            popup.style.opacity = '0';
+            setTimeout(() => {
+              popup.style.opacity = '1';
+            }, 10);
+          });
+    
+        element.addEventListener('mouseleave', () => {
+            popup.style.opacity = '0';
+            timeout = setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        });
+    }
+
+    // Add hover functionality to existing func_1 and func_2
+    if (module0) {
+        const func1Button = module0.querySelector('.func_1');
+        const func2Button = module0.querySelector('.func_2');
+
+        if (func1Button) addHoverFunctionality(func1Button);
+        if (func2Button) addHoverFunctionality(func2Button);
+    }
+
+
+
+
+
+
+
     // Modify the addFunctionButton function
+    // function addFunctionButton(moduleElement) {
+    //     const existingFunctions = moduleElement.querySelectorAll('.oval-shape[class*="func_"]');
+    //     const nextFuncNumber = existingFunctions.length + 1;
+    //     const funcName = `func_${nextFuncNumber}`;
+
+    //     const newButton = document.createElement('div');
+    //     newButton.className = `oval-shape ${funcName} add-function-button`; // Add class here
+    //     newButton.innerText = funcName;
+
+        
+
+    //     moduleElement.appendChild(newButton);
+    //     captureState('addFunctionButton', funcName);
+    //     adjustModuleHeight();
+    // }
+
+
+
     function addFunctionButton(moduleElement) {
         const existingFunctions = moduleElement.querySelectorAll('.oval-shape[class*="func_"]');
         const nextFuncNumber = existingFunctions.length + 1;
         const funcName = `func_${nextFuncNumber}`;
 
         const newButton = document.createElement('div');
-        newButton.className = `oval-shape ${funcName} add-function-button`; // Add class here
+        newButton.className = `oval-shape ${funcName} add-function-button`;
         newButton.innerText = funcName;
 
-        
+        addHoverFunctionality(newButton);
 
         moduleElement.appendChild(newButton);
         captureState('addFunctionButton', funcName);
         adjustModuleHeight();
     }
+
 
     // Add function option click event
     addFunctionOption.addEventListener('click', () => {
@@ -386,6 +497,34 @@ document.addEventListener('DOMContentLoaded', () => {
         return newModule;
     }
 
+    // function addRefinementButton(moduleElement, funcName, counter) {
+    //     const newButton = document.createElement('div');
+    //     newButton.className = `oval-shape ${funcName}`;
+    //     newButton.innerText = funcName;
+
+    //     newButton.style.backgroundColor = '#f78cc5';
+    //     newButton.style.color = 'black';
+
+    //     newButton.addEventListener('click', function () {
+    //         const nextModuleId = `module_${counter + 1}`;
+    //         const nextModule = document.getElementById(nextModuleId);
+    //         if (nextModule) {
+    //             const refinedFuncName = `${funcName}${counter}`;
+    //             const existingRefinement = nextModule.querySelector(`.${refinedFuncName}`);
+    //             if (!existingRefinement) {
+    //                 addRefinementButton(nextModule, refinedFuncName, counter + 1);
+    //             }
+    //         } else {
+    //             alert(`${nextModuleId} not found.`);
+    //         }
+    //     });
+
+    //     moduleElement.appendChild(newButton);
+
+    //     captureState('addRefinementButton');
+    // }
+
+
     function addRefinementButton(moduleElement, funcName, counter) {
         const newButton = document.createElement('div');
         newButton.className = `oval-shape ${funcName}`;
@@ -393,6 +532,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         newButton.style.backgroundColor = '#f78cc5';
         newButton.style.color = 'black';
+
+        addHoverFunctionality(newButton);
 
         newButton.addEventListener('click', function () {
             const nextModuleId = `module_${counter + 1}`;

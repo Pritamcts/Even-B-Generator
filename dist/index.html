@@ -101,6 +101,47 @@
             background-color: #fc0488;
             color: white;
         }
+        .popup {
+            background-color: #23507d;
+            border: 1px solid #82878b;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            max-width: 2000px;
+            transition: all 0.3s ease;
+        }
+
+        .popup h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #393f45;
+            border-bottom: 1px solid #ced4da;
+            padding-bottom: 4px;
+        }
+
+        .popup h4 {
+            margin: 4px 0;
+            font-size: 12px;
+            color: #4e555c;
+        }
+
+        .popup textarea {
+            width: 100%;
+            padding: 4px;
+            margin-bottom: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 11px;
+            resize: vertical;
+            min-height: 40px;
+        }
+
+        .popup textarea:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
     </style>
 
     <link rel="stylesheet" href="style.css">
@@ -116,6 +157,9 @@
         <button id="downloadDiagramBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-auto">Download
             Diagram</button>
         <button id="downloadEventBBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-2">Download Event-B</button>
+        <button id="downloadJSBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-2" class="js-download">
+            Download JS
+          </button>
         <button id="undoBtn" class="bg-white text-sky-400 px-4 py-2 rounded ml-2">Undo</button>
     </nav>
 
@@ -173,6 +217,7 @@
     </script>
     <script src="LeadLine.js"></script>
     <script src="screenshot.js"></script>
+    <script src="eventB.js"></script>
 
     <div id="contextMenu"
         class="context-menu hidden absolute bg-white border-2 rounded-lg border-blue-500 shadow-lg p-1 min-w-[120px]">
