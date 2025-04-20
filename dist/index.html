@@ -1,4 +1,4 @@
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 
@@ -229,6 +229,632 @@
     </div>
 
 
+</body>
+
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event-B Generator</title>
+    
+    <!-- Modern UI Styles -->
+    <style>
+        :root {
+            --primary-color: #5469d4;
+            --primary-light: #7b8ced;
+            --primary-dark: #3b4da0;
+            --secondary-color: #fc0488;
+            --secondary-light: #ff61b7;
+            --secondary-dark: #c8036c;
+            --tertiary-color: #9c3fa1;
+            --tertiary-light: #c878cd;
+            --neutral-light: #f8fafc;
+            --neutral-dark: #1e293b;
+            --success-color: #4ade80;
+            --warning-color: #facc15;
+            --error-color: #f43f5e;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--neutral-dark);
+            min-height: 100vh;
+        }
+
+        /* Navigation bar */
+        nav {
+            background: linear-gradient(135deg, #4776e6, #8e54e9);
+            box-shadow: var(--shadow-md);
+            border-bottom: none;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: white;
+        }
+
+        .ml-auto {
+            margin-left: auto;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+        }
+
+        nav button {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        nav button:active {
+            transform: translateY(0);
+        }
+
+        /* Container styles */
+        #container {
+            padding: 24px;
+            margin: 0 auto;
+            max-width: 1400px;
+            position: relative;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Static container styles */
+        .static-container {
+            margin-bottom: 32px;
+            position: relative;
+            display: inline-block;
+        }
+
+        [id^="static_"] {
+            background: linear-gradient(135deg, #edf2ff, #dbeafe);
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            width: 150px;
+            height: 150px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        [id^="static_"]:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-style: dashed;
+        }
+
+        /* Module container styles */
+        .module-container {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .module-row {
+            position: relative;
+            display: inline-block;
+            margin-right: 40px;
+        }
+
+        [id^="module_"] {
+            background: linear-gradient(135deg, #fff1f6, #ffe4ef);
+            border: 2px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 16px 10px;
+            width: 150px;
+            min-height: 180px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: visible;
+            color: var(--secondary-dark);
+            font-weight: 600;
+            text-transform: uppercase;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        [id^="module_"]:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            border-style: dashed;
+        }
+
+        /* Connection point indicators */
+        .border-overlay-right::after,
+        .border-overlay-bottom::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .border-overlay-right::after {
+            background-color: var(--secondary-color);
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .border-overlay-bottom::after {
+            background-color: var(--primary-color);
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .static-container .border-overlay-right::after {
+            background-color: var(--primary-color);
+        }
+
+        .small-box.bottom-right::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            bottom: -8px;
+            right: -8px;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .small-box.top-left::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            top: -8px;
+            left: -8px;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        /* Connection point hover effects */
+        .border-overlay-right:hover::after {
+            transform: scale(1.3) translateY(-50%);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 0 20px rgba(82, 0, 255, 0.3);
+        }
+
+        .border-overlay-bottom:hover::after,
+        .small-box.bottom-right:hover::after,
+        .small-box.top-left:hover::after {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.7), 0 0 20px rgba(82, 0, 255, 0.3);
+        }
+
+        /* Function button styles */
+        .oval-shape {
+            background: linear-gradient(45deg, var(--secondary-color), var(--secondary-light));
+            border: none;
+            width: 120px;
+            height: 38px;
+            border-radius: 50px;
+            margin-top: 12px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            user-select: none;
+            position: relative;
+            z-index: 5;
+        }
+
+        .oval-shape:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .oval-shape:active {
+            transform: translateY(0);
+        }
+
+        /* Refined function button styles */
+        [class*="refine_"] {
+            background: linear-gradient(45deg, var(--tertiary-color), var(--tertiary-light));
+            color: white;
+            font-size: 0.9rem;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 0 10px;
+        }
+
+        /* Popup styles */
+        .popup {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            width: 300px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .popup h3 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: var(--neutral-dark);
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .popup h4 {
+            margin: 8px 0 4px 0;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .popup textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+            margin-bottom: 12px;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .popup textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(84, 105, 212, 0.2);
+        }
+
+        /* Context menu */
+        #contextMenu {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 8px 0;
+            min-width: 160px;
+            animation: fadeIn 0.2s ease-in-out;
+            position: absolute;
+            z-index: 1000;
+        }
+
+        #contextMenu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #contextMenu li {
+            padding: 8px 16px;
+            font-size: 14px;
+            color: var(--neutral-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #contextMenu li:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+        }
+
+        /* Helper tooltip */
+        .help-tooltip {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .help-tooltip:hover {
+            transform: scale(1.1);
+        }
+
+        .help-content {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .help-content h3 {
+            margin: 0 0 8px 0;
+            color: var(--primary-color);
+        }
+
+        .help-content ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .help-content li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            nav {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 12px;
+            }
+            
+            nav button {
+                margin-top: 8px;
+            }
+            
+            #container {
+                padding: 16px;
+            }
+            
+            [id^="static_"],
+            [id^="module_"] {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+
+    <!-- External Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/leader-line@1.0.7/leader-line.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <h2>Event-B Generator</h2>
+        <div class="ml-auto flex">
+            <button id="downloadDiagramBtn" title="Save the current diagram as an image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download Diagram
+            </button>
+            <button id="downloadEventBBtn" title="Generate and download Event-B files">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Download Event-B
+            </button>
+            <button id="downloadJSBtn" title="Generate and download JavaScript implementation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                Download JS
+            </button>
+            <button id="undoBtn" title="Undo the last action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7v6h6"></path>
+                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                </svg>
+                Undo
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div id="container">
+        <!-- Static Container Row -->
+        <div class="flex" style="gap: 40px; margin-bottom: 40px;">
+            <div class="static-container">
+                <div id="static_0"
+                    class="p-4 outline-none text-center cursor-pointer uppercase relative rounded-2xl"
+                    contenteditable="true">
+                    static_0
+                    <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+                    <div class="border-overlay-bottom absolute bottom-0 left-0 w-full h-2"></div>
+                    <div class="small-box bottom-right"></div>
+                    <div class="status-indicator"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Container Row -->
+        <div class="module-container">
+            <div class="module-row">
+                <div id="module_0"
+                    class="p-4 outline-none rounded-2xl text-center cursor-pointer uppercase relative"
+                    contenteditable="true">
+                    module_0
+                    <div class="border-overlay-right absolute top-0 right-0 w-2 h-full"></div>
+                    <div class="small-box top-left"></div>
+                    <div class="oval-shape func_1">func_1</div>
+                    <div class="oval-shape func_2">func_2</div>
+                    <div class="status-indicator"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" style="display: none;">
+        <ul>
+            <li id="addFunctionOption">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Function
+            </li>
+        </ul>
+    </div>
+
+    <!-- Help Tooltip -->
+    <div class="help-tooltip">?</div>
+    <div class="help-content">
+        <h3>Quick Guide</h3>
+        <ul>
+            <li><strong>Add Static Container:</strong> Click the blue dot on the right side of any static container</li>
+            <li><strong>Add Module:</strong> Click the pink dot on the right side of any module</li>
+            <li><strong>Add Sees Relationship:</strong> Click the blue dot at the bottom-right of a static container</li>
+            <li><strong>Add Function:</strong> Right-click on a module and select "Add Function"</li>
+            <li><strong>Define Function:</strong> Click on a function to add preconditions and postconditions</li>
+            <li><strong>Create Refinement:</strong> Double-click on a function to refine it in the next module</li>
+        </ul>
+    </div>
+
+    <!-- Module Height Adjustment Script -->
+    <script>
+        function adjustModuleHeight() {
+            const modules = document.querySelectorAll('[id^="module_"]');
+
+            modules.forEach(module => {
+                const buttons = module.querySelectorAll('.oval-shape');
+                let totalHeight = 60; // Base padding
+
+                buttons.forEach(button => {
+                    totalHeight += button.offsetHeight + 12; // Button height + margin
+                });
+
+                // Set minimum height
+                if (totalHeight < 140) totalHeight = 140;
+                
+                module.style.height = `${totalHeight}px`;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            adjustModuleHeight();
+            
+            // Help tooltip functionality
+            const helpTooltip = document.querySelector('.help-tooltip');
+            const helpContent = document.querySelector('.help-content');
+            
+            helpTooltip.addEventListener('click', () => {
+                helpContent.style.display = helpContent.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!helpTooltip.contains(e.target) && !helpContent.contains(e.target)) {
+                    helpContent.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- Main Script -->
+    <script src="eventB.js"></script>
 </body>
 
 </html>

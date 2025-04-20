@@ -149,30 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
-
-
-
-
-    // Modify the addFunctionButton function
-    // function addFunctionButton(moduleElement) {
-    //     const existingFunctions = moduleElement.querySelectorAll('.oval-shape[class*="func_"]');
-    //     const nextFuncNumber = existingFunctions.length + 1;
-    //     const funcName = `func_${nextFuncNumber}`;
-
-    //     const newButton = document.createElement('div');
-    //     newButton.className = `oval-shape ${funcName} add-function-button`; // Add class here
-    //     newButton.innerText = funcName;
-
-        
-
-    //     moduleElement.appendChild(newButton);
-    //     captureState('addFunctionButton', funcName);
-    //     adjustModuleHeight();
-    // }
-
-
-
     function addFunctionButton(moduleElement) {
         const existingFunctions = moduleElement.querySelectorAll('.oval-shape[class*="func_"]');
         const nextFuncNumber = existingFunctions.length + 1;
